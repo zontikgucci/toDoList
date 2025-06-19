@@ -8,6 +8,18 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
+.loading {
+  position: fixed;
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 5px solid #61dafb;
+  border-radius: 50%;
+  border-left-color: transparent;
+  transform: translate(-50%, -50%);
+  animation: spin 1s infinite linear;
+}
+
 .title {
   text-align: center;
   color: #61dafb;
@@ -180,4 +192,13 @@
 .deleteButton:hover {
   background-color: #c82333;
   opacity: 0.9;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
