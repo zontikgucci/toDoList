@@ -67,6 +67,10 @@
     transform 0.2s ease;
 }
 
+.addButton:disabled {
+  background-color: #ccc;
+}
+
 .addButton:hover {
   background-color: #4dc2ea;
   transform: translateY(-2px);
