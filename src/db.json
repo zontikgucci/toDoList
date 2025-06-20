@@ -1,11 +1,6 @@
 {
   "todos": [
     {
-      "title": "quis ut nam facilis et officia qui",
-      "completed": false,
-      "id": 2
-    },
-    {
       "title": "fugiat veniam minus",
       "completed": false,
       "id": 3
@@ -19,6 +14,16 @@
       "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
       "completed": false,
       "id": 5
+    },
+    {
+      "title": "Сегодня готовим спаржу",
+      "completed": false,
+      "id": 6
+    },
+    {
+      "title": "Завтра готовим борщ",
+      "completed": true,
+      "id": 7
     }
   ]
 }
