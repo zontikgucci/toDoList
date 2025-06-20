@@ -1,42 +1,39 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import styles from './App.module.css';
 import { debounce } from './utils/debounce';
+import {
+  useRequestGetToDo,
+  useRequestAddToDo,
+  useRequestUpdateToDo,
+  useRequestDeleteToDo,
+  useRequestSortToDo,
+} from './hooks';
 
-const URL_TODOS = 'http://localhost:3000/todos';
+const URL_TODOS = import.meta.env.VITE_APP_URL;
 
 export const App = () => {
-  const [todos, setTodos] = useState([]);
-  const [allTodos, setAllTodos] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [refreshProducts, setRefreshProducts] = useState(false);
-  const [titleToDo, setTitleToDo] = useState('');
-  const [isCreating, setIsCreating] = useState(true);
-  const [searchInput, setSearchInput] = useState('');
   const [error, setError] = useState(null);
+  const [triggerRefetch, setTriggerRefetch] = useState(false);
+  const [titleToDo, setTitleToDo] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+
+  // request
+  const { isLoading, todos, allTodos, setTodos, setAllTodos } = useRequestGetToDo({
+    URL_TODOS,
+    triggerRefetch,
+    setError,
+  });
+  const { isCreating, setIsCreating, requestAddToDo } = useRequestAddToDo({
+    URL_TODOS,
+    setTriggerRefetch,
+    setError,
+    setTitleToDo,
+  });
+  const { requestCompletedToDo } = useRequestUpdateToDo({ URL_TODOS, setTriggerRefetch, setError });
+  const { requestDeleteToDo } = useRequestDeleteToDo({ URL_TODOS, setTriggerRefetch, setError });
+  const { onButtonToSorted } = useRequestSortToDo({ URL_TODOS, setError, setTodos, setAllTodos });
 
   const debouncedSetTodosRef = useRef(debounce(setTodos, 500));
-
-  useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-    fetch(URL_TODOS)
-      .then((loadedData) => {
-        if (!loadedData.ok) {
-          throw new Error(`HTTP error! status: ${loadedData.status}`);
-        }
-        return loadedData.json();
-      })
-      .then((loadedToDos) => {
-        setTodos(loadedToDos);
-        setAllTodos(loadedToDos);
-      })
-      .catch((err) => {
-        console.error('Ошибка загрузки задач:', err);
-        setError('Не удалось загрузить задачи. Пожалуйста, попробуйте еще раз.');
-      })
-      .finally(() => setIsLoading(false));
-  }, [refreshProducts]);
-
   const onSearchToDo = useCallback(
     ({ target }) => {
       const searchValue = target.value.trim();
@@ -61,92 +58,6 @@ export const App = () => {
     if (key === 'Enter' && titleToDo.length !== 0) {
       requestAddToDo(titleToDo);
     }
-  };
-
-  const requestAddToDo = (title) => {
-    setError(null);
-    fetch(URL_TODOS, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json;charset=utf-8' },
-      body: JSON.stringify({
-        title,
-        completed: false,
-      }),
-    })
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-        return rawResponse.json();
-      })
-      .then(() => {
-        setTitleToDo('');
-        setRefreshProducts((prev) => !prev);
-      })
-      .catch((err) => {
-        console.error('Ошибка добавления задачи:', err);
-        setError('Не удалось добавить задачу. Пожалуйста, попробуйте еще раз.');
-      })
-      .finally(() => setIsCreating(true));
-  };
-
-  const requestCompletedToDo = (id, title, isCompleted) => {
-    setError(null);
-    fetch(`${URL_TODOS}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json;charset=utf-8' },
-      body: JSON.stringify({
-        title,
-        completed: !isCompleted,
-      }),
-    })
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-        return rawResponse.json();
-      })
-      .then(() => setRefreshProducts((prev) => !prev))
-      .catch((err) => {
-        console.error('Ошибка обновления задачи:', err);
-        setError('Не удалось обновить статус задачи. Пожалуйста, попробуйте еще раз.');
-      });
-  };
-
-  const requestDeleteToDo = (id) => {
-    setError(null);
-    fetch(`${URL_TODOS}/${id}`, {
-      method: 'DELETE',
-    })
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-      })
-      .then(() => setRefreshProducts((prev) => !prev))
-      .catch((err) => {
-        console.error('Ошибка удаления задачи:', err);
-        setError('Не удалось удалить задачу. Пожалуйста, попробуйте еще раз.');
-      });
-  };
-
-  const onButtonToSorted = () => {
-    setError(null);
-    fetch(`${URL_TODOS}?_sort=title`)
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-        return rawResponse.json();
-      })
-      .then((response) => {
-        setTodos(response);
-        setAllTodos(response);
-      })
-      .catch((err) => {
-        console.error('Ошибка сортировки задач:', err);
-        setError('Не удалось отсортировать задачи. Пожалуйста, попробуйте еще раз.');
-      });
   };
 
   return (

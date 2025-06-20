@@ -4,7 +4,7 @@
   color: #e0e0e0;
   padding: 30px;
   border-radius: 10px;
-  max-width: 500px;
+  width: 500px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
@@ -62,9 +62,7 @@
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
-  transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 .addButton:disabled {
@@ -73,7 +71,6 @@
 
 .addButton:hover {
   background-color: #4dc2ea;
-  transform: translateY(-2px);
 }
 
 .controlsSection {
@@ -111,14 +108,11 @@
   cursor: pointer;
   font-size: 1em;
   font-weight: bold;
-  transition:
-    background-color 0.3s ease,
-    transform 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 .sortButton:hover {
   background-color: #0056b3;
-  transform: translateY(-2px);
 }
 
 .todoList {
@@ -145,7 +139,6 @@
 }
 
 .todoItem:hover {
-  transform: translateY(-3px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 

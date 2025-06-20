@@ -1,11 +1,6 @@
 {
   "todos": [
     {
-      "title": "fugiat veniam minus",
-      "completed": false,
-      "id": 3
-    },
-    {
       "title": "et porro tempora",
       "completed": false,
       "id": 4
@@ -17,13 +12,8 @@
     },
     {
       "title": "Сегодня готовим спаржу",
-      "completed": false,
-      "id": 6
-    },
-    {
-      "title": "Завтра готовим борщ",
       "completed": true,
-      "id": 7
+      "id": 6
     }
   ]
 }
