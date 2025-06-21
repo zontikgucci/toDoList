@@ -1,19 +1,13 @@
-export const useRequestDeleteToDo = ({ URL_TODOS, setTriggerRefetch, setError }) => {
+import { ref, remove } from 'firebase/database';
+import { db } from '../firebase';
+
+export const useRequestDeleteToDo = () => {
   const requestDeleteToDo = (id) => {
-    setError(null);
-    fetch(`${URL_TODOS}/todos/${id}`, {
-      method: 'DELETE',
-    })
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-      })
-      .then(() => setTriggerRefetch((prev) => !prev))
-      .catch((err) => {
-        console.error('Ошибка удаления задачи:', err);
-        setError('Не удалось удалить задачу. Пожалуйста, попробуйте еще раз.');
-      });
+    const toDoDbRef = ref(db, `todos/${id}`);
+
+    remove(toDoDbRef).then((response) => {
+      console.log('todo удален', response);
+    });
   };
 
   return {

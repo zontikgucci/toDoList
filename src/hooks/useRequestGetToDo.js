@@ -1,36 +1,29 @@
 import { useEffect, useState } from 'react';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase';
 
-export const useRequestGetToDo = ({ URL_TODOS, triggerRefetch, setError }) => {
+export const useRequestGetToDo = () => {
   const [todos, setTodos] = useState([]);
-  const [allTodos, setAllTodos] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-    fetch(`${URL_TODOS}/todos`)
-      .then((loadedData) => {
-        if (!loadedData.ok) {
-          throw new Error(`HTTP error! status: ${loadedData.status}`);
-        }
-        return loadedData.json();
-      })
-      .then((loadedToDos) => {
-        setTodos(loadedToDos);
-        setAllTodos(loadedToDos);
-      })
-      .catch((err) => {
-        console.error('Ошибка загрузки задач:', err);
-        setError('Не удалось загрузить задачи. Пожалуйста, попробуйте еще раз.');
-      })
-      .finally(() => setIsLoading(false));
-  }, [triggerRefetch]);
+    const toDoDbRef = ref(db, 'todos');
+
+    return onValue(toDoDbRef, (snapshot) => {
+      const loadedToDo = snapshot.val() || {};
+
+      const loadedToDoArray = Object.keys(loadedToDo).map((id) => ({
+        id,
+        ...loadedToDo[id],
+      }));
+
+      setTodos(loadedToDoArray);
+      setIsLoading(false);
+    });
+  }, []);
 
   return {
     isLoading,
     todos,
-    allTodos,
-    setTodos,
-    setAllTodos,
   };
 };

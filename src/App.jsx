@@ -1,53 +1,28 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import styles from './App.module.css';
-import { debounce } from './utils/debounce';
-import {
-  useRequestGetToDo,
-  useRequestAddToDo,
-  useRequestUpdateToDo,
-  useRequestDeleteToDo,
-  useRequestSortToDo,
-} from './hooks';
-
-const URL_TODOS = import.meta.env.VITE_APP_URL;
+import { useRequestGetToDo, useRequestAddToDo, useRequestUpdateToDo, useRequestDeleteToDo } from './hooks';
 
 export const App = () => {
-  const [error, setError] = useState(null);
-  const [triggerRefetch, setTriggerRefetch] = useState(false);
   const [titleToDo, setTitleToDo] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [isSorted, setIsSorted] = useState(false);
 
   // request
-  const { isLoading, todos, allTodos, setTodos, setAllTodos } = useRequestGetToDo({
-    URL_TODOS,
-    triggerRefetch,
-    setError,
-  });
-  const { isCreating, setIsCreating, requestAddToDo } = useRequestAddToDo({
-    URL_TODOS,
-    setTriggerRefetch,
-    setError,
-    setTitleToDo,
-  });
-  const { requestCompletedToDo } = useRequestUpdateToDo({ URL_TODOS, setTriggerRefetch, setError });
-  const { requestDeleteToDo } = useRequestDeleteToDo({ URL_TODOS, setTriggerRefetch, setError });
-  const { onButtonToSorted } = useRequestSortToDo({ URL_TODOS, setError, setTodos, setAllTodos });
+  const { isLoading, todos } = useRequestGetToDo();
+  const { isCreating, setIsCreating, requestAddToDo } = useRequestAddToDo({ setTitleToDo });
+  const { requestCompletedToDo } = useRequestUpdateToDo();
+  const { requestDeleteToDo } = useRequestDeleteToDo();
 
-  const debouncedSetTodosRef = useRef(debounce(setTodos, 500));
-  const onSearchToDo = useCallback(
-    ({ target }) => {
-      const searchValue = target.value.trim();
-      setSearchInput(searchValue);
+  const displayedTodos = useMemo(() => {
+    const filteredTodos = todos.filter(({ title }) => title.toLowerCase().includes(searchInput.toLowerCase()));
 
-      if (searchValue === '') {
-        debouncedSetTodosRef.current(allTodos);
-      } else {
-        const filteredTodos = allTodos.filter(({ title }) => title.toLowerCase().includes(searchValue.toLowerCase()));
-        debouncedSetTodosRef.current(filteredTodos);
-      }
-    },
-    [allTodos],
-  );
+    if (isSorted) {
+      return [...filteredTodos].sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return filteredTodos;
+  }, [todos, searchInput, isSorted]);
+  console.log(displayedTodos);
 
   const onChangeInputText = ({ target }) => {
     setTitleToDo(target.value);
@@ -60,6 +35,10 @@ export const App = () => {
     }
   };
 
+  const onButtonToSort = () => {
+    setIsSorted((prev) => !prev);
+  };
+
   return (
     <>
       {isLoading ? (
@@ -67,7 +46,6 @@ export const App = () => {
       ) : (
         <div className={styles.container}>
           <h1 className={styles.title}>To-Do List</h1>
-          {error && <div className={styles.errorMessage}>{error}</div>}
           <div className={styles.inputSection}>
             <input
               type="text"
@@ -87,17 +65,17 @@ export const App = () => {
               placeholder="Search tasks..."
               className={styles.searchInput}
               value={searchInput}
-              onChange={onSearchToDo}
+              onChange={({ target }) => setSearchInput(target.value)}
             />
-            <button className={styles.sortButton} onClick={onButtonToSorted}>
-              Sort
+            <button className={styles.sortButton} onClick={onButtonToSort}>
+              {isSorted ? 'Undo' : 'Sort'}
             </button>
           </div>
           <ul className={styles.todoList}>
-            {todos.length === 0 && !isLoading && !error ? (
+            {displayedTodos.length === 0 && !isLoading ? (
               <li className={styles.noTasksMessage}>Задачи не найдены.</li>
             ) : (
-              todos.map(({ id, title, completed }) => (
+              displayedTodos.map(({ id, title, completed }) => (
                 <li className={`${styles.todoItem} ${completed ? styles.completed : ''}`} key={id}>
                   <span className={styles.todoText}>{title}</span>
                   <div className={styles.actions}>

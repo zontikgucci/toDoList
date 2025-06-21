@@ -1,33 +1,22 @@
 import { useState } from 'react';
+import { ref, push } from 'firebase/database';
+import { db } from '../firebase';
 
-export const useRequestAddToDo = ({ URL_TODOS, setTriggerRefetch, setTitleToDo, setError }) => {
+export const useRequestAddToDo = ({ setTitleToDo }) => {
   const [isCreating, setIsCreating] = useState(true);
 
   const requestAddToDo = (title) => {
-    setError(null);
-    fetch(`${URL_TODOS}/todos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json;charset=utf-8' },
-      body: JSON.stringify({
-        title,
-        completed: false,
-      }),
+    const toDoDbRef = ref(db, 'todos');
+
+    push(toDoDbRef, {
+      title,
+      completed: false,
     })
-      .then((rawResponse) => {
-        if (!rawResponse.ok) {
-          throw new Error(`HTTP error! status: ${rawResponse.status}`);
-        }
-        return rawResponse.json();
-      })
-      .then(() => {
+      .then((response) => {
         setTitleToDo('');
-        setTriggerRefetch((prev) => !prev);
+        console.log('todo добавлен', response);
       })
-      .catch((err) => {
-        console.error('Ошибка добавления задачи:', err);
-        setError('Не удалось добавить задачу. Пожалуйста, попробуйте еще раз.');
-      })
-      .finally(() => setIsCreating(true));
+      .finally(() => setIsCreating(false));
   };
 
   return {

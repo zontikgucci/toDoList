@@ -1,19 +1,16 @@
 {
-  "todos": [
-    {
+  "todos": {
+    "1": {
       "title": "et porro tempora",
-      "completed": false,
-      "id": 4
+      "completed": false
     },
-    {
+    "2": {
       "title": "laboriosam mollitia et enim quasi adipisci quia provident illum",
-      "completed": false,
-      "id": 5
+      "completed": false
     },
-    {
+    "3": {
       "title": "Сегодня готовим спаржу",
-      "completed": true,
-      "id": 6
+      "completed": true
     }
-  ]
+  }
 }
